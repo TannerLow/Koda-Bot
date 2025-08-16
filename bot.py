@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import timedelta
 
 import discord
 from discord import Message
@@ -8,6 +9,10 @@ from dotenv import load_dotenv
 from src.Discord.command_parser import CommandParser
 from src.Logging.logger import Logger
 from src.API.koda import Koda
+from src.API.model import (
+    CheckinSettings,
+    LevelingSettings
+)
 from src.Database.in_memory_db import InMemoryDatabase
 
 import test
@@ -23,9 +28,22 @@ intents = discord.Intents.default()
 intents.message_content = True  # Required to read message text
 client = discord.Client(intents=intents)
 
-
+# Create components
 database = InMemoryDatabase("KodaDB")
-koda_api = Koda("templates", database)
+
+checkin_settings = CheckinSettings(
+    base_cooldown=timedelta(seconds=10)
+)
+leveling_settings = LevelingSettings(
+    checkin_reward=500
+)
+koda_api = Koda(
+    "templates",
+    database, 
+    checkin_settings, 
+    leveling_settings
+)
+
 parser = CommandParser("koda", koda_api)
 LOGGER = Logger(__file__, "debug")
 

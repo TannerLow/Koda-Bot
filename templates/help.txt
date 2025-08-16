@@ -1,1 +1,16 @@
-TODO add useful help info
+Available commands
+```
+koda ?
+
+<Description>
+```
+```
+koda checkin <proof>
+
+<Description>
+```
+```
+koda stats
+
+<Description>
+```
