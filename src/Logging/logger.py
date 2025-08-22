@@ -11,6 +11,7 @@ class Logger:
         levels = {
             "debug": logging.DEBUG,
             "info": logging.INFO,
+            "warn": logging.WARN,
             "error": logging.ERROR
         }
         level = levels[level.lower().strip()]
@@ -36,6 +37,9 @@ class Logger:
 
     def debug(self, log_message: str) -> None:
         self.logger.debug(log_message)
+
+    def warn(self, log_message: str) -> None:
+        self.logger.warning(log_message)
     
     def error(self, log_message: str) -> None:
         self.logger.error(log_message)

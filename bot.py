@@ -13,9 +13,9 @@ from src.API.model import (
     CheckinSettings,
     LevelingSettings
 )
+from src.Database.in_memory_database_facade import InMemoryDatabaseFacade
 from src.Database.in_memory_db import InMemoryDatabase
-
-import test
+from src.Database.model import DatabaseSettings
 
 
 load_dotenv()
@@ -29,7 +29,12 @@ intents.message_content = True  # Required to read message text
 client = discord.Client(intents=intents)
 
 # Create components
+database_settings = DatabaseSettings(
+    save_filename='db.json',
+    save_folder='persistance'
+)
 database = InMemoryDatabase("KodaDB")
+database_facade = InMemoryDatabaseFacade(database, database_settings)
 
 checkin_settings = CheckinSettings(
     base_cooldown=timedelta(seconds=10)
@@ -39,7 +44,7 @@ leveling_settings = LevelingSettings(
 )
 koda_api = Koda(
     "templates",
-    database, 
+    database_facade, 
     checkin_settings, 
     leveling_settings
 )

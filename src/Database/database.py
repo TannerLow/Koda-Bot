@@ -1,18 +1,30 @@
 from typing import Any
+from abc import ABC, abstractmethod
 
-class Database:
+from .schema import Schema
 
-    def __init__(self):
-        raise NotImplementedError("Attempt to use an abstract class")
-
+class Database(ABC):
+    
+    @abstractmethod
     def get_record(self, table: str, key: Any) -> Any:
-        raise NotImplementedError("Attempt to use an abstract class")
+        pass
     
+    @abstractmethod
     def set_record(self, table: str, key: Any, data: Any) -> None:
-        raise NotImplementedError("Attempt to use an abstract class")
+        pass
     
-    def create_table(self, table: str) -> None:
-        raise NotImplementedError("Attempt to use an abstract class")
+    # @abstractmethod
+    # def create_table(self, table: str) -> None:
+    #     pass
     
+    @abstractmethod
     def get_table(self, table: str) -> Any:
-        raise NotImplementedError("Attempt to use an abstract class")
+        pass
+    
+    @abstractmethod
+    def get_table_names(self) -> list[str]:
+        pass
+
+    @abstractmethod
+    def get_schema(self) -> Schema:
+        pass

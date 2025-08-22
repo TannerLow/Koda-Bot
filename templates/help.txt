@@ -1,16 +1,21 @@
 Available commands
 ```
 koda ?
-
-<Description>
+---
+Displays the structure of each command and a short description.
 ```
 ```
 koda checkin <proof>
-
-<Description>
+---
+Check-in with Koda for the day and optionally provide some proof. Proof can be a simple note, a link to a commit, etc. If registered, you can give your github name as proof and Koda will check your Github contribution calendar. Enable "Include private contributions on my profile" to allow Koda to see contributions to private repos. No private data is visible.
 ```
 ```
 koda stats
-
-<Description>
+---
+Get a stats report for your account, including level and xp progress.
+```
+```
+koda register <github username>
+---
+Register your GitHub username with Koda. Allows Koda to see public data on your profile.
 ```
