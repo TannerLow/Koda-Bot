@@ -11,7 +11,8 @@ from ..API.koda import Koda
 from ..API.model import (
     Stats,
     User,
-    Checkin
+    Checkin,
+    ProofType
 )
 from ..API.exceptions import LackOfContributionError
 
@@ -31,10 +32,10 @@ class CommandParser:
             "stats": self.get_stats,
             "checkin": self.checkin,
             "register": self.register,
-            "savedb": self.save_db,
+            "savedb": self.save_db, # Admin
 
             # UNIMPLEMENTED
-            "clear": self.clear_user,
+            # "clear": self.clear_user,
         }
         self.api = koda_api
 
@@ -127,7 +128,7 @@ class CommandParser:
     async def checkin(self, message: Message, command: list[str]) -> None:
         LOGGER.debug("It's a checkin command")
 
-        expected_command_length: int = 2
+        expected_command_length: int = 1
         command_length: int = len(command)
         if command_length < expected_command_length:
             LOGGER.debug(f"Command not long enough: expected {expected_command_length}, received {command_length}")
@@ -139,7 +140,8 @@ class CommandParser:
         checkin: Checkin = Checkin(
             user_id=str(message.author.id),
             date=datetime.now(),
-            proof=command[1]
+            proof=command[1] if len(command) > 1 else "Trust system",
+            proof_type=None if len(command) > 1 else ProofType.No_proof
         )
 
         try:
@@ -203,9 +205,17 @@ class CommandParser:
     async def save_db(self, message: Message, command: list[str]) -> None:
         if message.author.id == ADMIN_ID:
             LOGGER.warn("[ADMIN] save db command issued by admin")
-            self.api.save_db()
+            self.api.save_db(permanent=True)
             await message.channel.send("Database has been saved :white_check_mark:")
 
         else:
             LOGGER.warn("[BREACH] save db command issued by non-admin")
+
+    async def ephemeral_auto_save_db(self) -> None:
+        LOGGER.info("Autosaving DB for short term")
+        self.api.save_db()
+
+    async def permanent_auto_save_db(self) -> None:
+        LOGGER.info("Autosaving DB for long term")
+        self.api.save_db(permanent=True)
     

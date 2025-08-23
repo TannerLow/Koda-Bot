@@ -1,6 +1,8 @@
 from uuid import uuid4
 from pathlib import Path
-import json
+import os
+from typing import Optional
+import time
 
 from .database_facade import DatabaseFacade
 from .database import Database
@@ -86,27 +88,67 @@ class InMemoryDatabaseFacade(DatabaseFacade):
         self.database.set_record('users', user_id, user)
         LOGGER.info(f"Set user {user_id}'s github name to {github_name}")
 
-    def save_db(self):
-        filepath: Path = self._get_available_filename()
+    def save_db(self, permanent: bool = False) -> None:
+        if permanent:
+            folder_path = Path(self.database_settings.save_folder)
+            stem, suffix = Path(self.database_settings.save_filename).stem, Path(self.database_settings.save_filename).suffix
+            timestamp_str = str(int(time.time()))
+            filename = Path(f"{stem}_{timestamp_str}{suffix}")
+            filepath: Path = folder_path / filename
+
+        else:
+            filepath: Path = self._get_save_filename()
 
         with open(filepath, 'w') as file:
             file.write(self.database.get_schema().model_dump_json())
 
-    def _get_available_filename(self) -> Path:
+    def load_db(self) -> bool:
+        filepath: Path = self._get_latest_filename()
+
+        if not filepath or not os.path.exists(filepath):
+            return False
+
+        schema_type: type = type(self.database.get_schema())
+        with open(filepath, 'r') as file:
+            self.database.db = schema_type.model_validate_json(file.read())
+            return True
+        
+        return False
+
+    def _get_save_filename(self) -> Path:
+        """
+        Save to 1 of 3 save files on a rolling basis
+        """
         folder_path = Path(self.database_settings.save_folder)
-        folder_path.mkdir(parents=True, exist_ok=True)  # Make directory if it doesn't exist
+        folder_path.mkdir(parents=True, exist_ok=True)
 
-        file_path = folder_path / self.database_settings.save_filename
+        stem, suffix = Path(self.database_settings.save_filename).stem, Path(self.database_settings.save_filename).suffix
 
-        if not file_path.exists():
-            return file_path
+        # define the 3 rolling filenames
+        candidates = [folder_path / f"{stem}_{i}{suffix}" for i in range(1, 4)]
 
-        stem, suffix = file_path.stem, file_path.suffix
-        counter = 1
+        # pick the oldest file (or a missing one)
+        oldest_file = min(
+            candidates,
+            key=lambda f: f.stat().st_mtime if f.exists() else float("-inf")
+        )
 
-        # Keep incrementing until we find a non-taken name
-        while True:
-            new_file = folder_path / f"{stem}_{counter}{suffix}"
-            if not new_file.exists():
-                return new_file
-            counter += 1
+        return oldest_file
+
+    
+    def _get_latest_filename(self) -> Optional[Path]:
+        """
+        Get the most recently modified file in the save folder.
+        """
+        folder_path = Path(self.database_settings.save_folder)
+
+        if not folder_path.exists():
+            return None
+
+        # grab only files (ignore subfolders)
+        files = [f for f in folder_path.iterdir() if f.is_file()]
+        if not files:
+            return None
+
+        # pick the newest one by modified time
+        return max(files, key=lambda f: f.stat().st_mtime)

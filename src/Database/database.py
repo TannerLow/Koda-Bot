@@ -13,10 +13,6 @@ class Database(ABC):
     def set_record(self, table: str, key: Any, data: Any) -> None:
         pass
     
-    # @abstractmethod
-    # def create_table(self, table: str) -> None:
-    #     pass
-    
     @abstractmethod
     def get_table(self, table: str) -> Any:
         pass
@@ -26,5 +22,5 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def get_schema(self) -> Schema:
+    def get_schema(self) -> Any:
         pass

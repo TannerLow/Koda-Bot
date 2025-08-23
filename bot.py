@@ -1,9 +1,9 @@
-import logging
 import os
 from datetime import timedelta
 
 import discord
 from discord import Message
+from discord.ext import tasks
 from dotenv import load_dotenv
 
 from src.Discord.command_parser import CommandParser
@@ -37,7 +37,7 @@ database = InMemoryDatabase("KodaDB")
 database_facade = InMemoryDatabaseFacade(database, database_settings)
 
 checkin_settings = CheckinSettings(
-    base_cooldown=timedelta(seconds=10)
+    base_cooldown=timedelta(hours=16)
 )
 leveling_settings = LevelingSettings(
     checkin_reward=500
@@ -55,9 +55,23 @@ LOGGER = Logger(__file__, "debug")
 #test.create_test_data_in_db(database)
 
 
+@tasks.loop(minutes=1)
+async def autosave_db_short_term():
+    await parser.ephemeral_auto_save_db()
+
+@tasks.loop(hours=24)
+async def autosave_db_long_term():
+    await parser.permanent_auto_save_db()
+
 @client.event
 async def on_ready():
     LOGGER.info(f"Bot connected as {client.user}")
+
+    if not autosave_db_short_term.is_running():
+        autosave_db_short_term.start()
+
+    if not autosave_db_long_term.is_running():
+        autosave_db_long_term.start()
 
 @client.event
 async def on_message(message: Message):
@@ -73,8 +87,6 @@ async def on_message(message: Message):
     if parser.is_command(message.content):
         LOGGER.debug("Command detected")
         await parser.parse_command(message)
-    
-
 
 # Start the bot
 client.run(TOKEN)

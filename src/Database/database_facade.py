@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from ..API.model import (
     Stats,
@@ -7,10 +8,6 @@ from ..API.model import (
 )
 
 class DatabaseFacade(ABC):
-
-    # @abstractmethod
-    # def create_tables(self):
-    #     pass
 
     @abstractmethod
     def get_stats(self, user_id: int) -> Stats:
@@ -37,5 +34,9 @@ class DatabaseFacade(ABC):
         pass
 
     @abstractmethod
-    def save_db(self) -> None:
+    def save_db(self, permanent: bool = False) -> None:
+        pass
+
+    @abstractmethod
+    def load_db(self) -> bool:
         pass

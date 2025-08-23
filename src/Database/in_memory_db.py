@@ -20,10 +20,6 @@ class InMemoryDatabase(Database):
         db_table: dict = self.get_table(table)
         db_table[key] = data
 
-    # def create_table(self, table: str) -> None:
-    #     if table not in self.db:
-    #         self.db[table] = {}
-
     def get_table(self, table: str) -> dict:
         db_table: dict = getattr(self.db, table)
 

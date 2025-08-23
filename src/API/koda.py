@@ -39,6 +39,9 @@ class Koda:
         self.database_facade = database_facade
         self.user_cache = set()
 
+        if self.database_facade.load_db():
+            LOGGER.info("Successfully loaded DB")
+
     def load_templates(self, templates_dir_path: str) -> dict[str, str]:
         file_contents = {}
 
@@ -118,6 +121,12 @@ class Koda:
                 user.last_github_contribution = latest_contribution
 
         # create new checkin
+        if not checkin.proof_type:
+            if checkin.proof:
+                checkin.proof_type = ProofType.Note
+            else:
+                checkin.proof_type = ProofType.No_proof
+                
         new_checkin_id: str = self.database_facade.create_checkin(checkin)
 
         # update last checkin
@@ -137,5 +146,5 @@ class Koda:
     def register_github_name(self, user_id: str, github_name: str) -> None:
         self.database_facade.update_users_github_name(user_id, github_name)
 
-    def save_db(self) -> None:
-        self.database_facade.save_db()
+    def save_db(self, permanent: bool = False) -> None:
+        self.database_facade.save_db(permanent)
