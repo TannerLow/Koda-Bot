@@ -212,7 +212,7 @@ class CommandParser:
             LOGGER.warn("[BREACH] save db command issued by non-admin")
 
     async def ephemeral_auto_save_db(self) -> None:
-        LOGGER.info("Autosaving DB for short term")
+        LOGGER.debug("Autosaving DB for short term")
         self.api.save_db()
 
     async def permanent_auto_save_db(self) -> None:
