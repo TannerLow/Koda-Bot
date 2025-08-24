@@ -140,8 +140,8 @@ class Koda:
         LOGGER.debug(f"Checkin time difference: {difference}")
         return difference < self.checkin_settings.base_cooldown
     
-    def give_xp(self, user_id: str, amount: int) -> None:
-        self.database_facade.give_xp(user_id, amount)
+    def give_xp(self, user_id: str, amount: int) -> bool:
+        return self.database_facade.give_xp(user_id, amount)
 
     def register_github_name(self, user_id: str, github_name: str) -> None:
         self.database_facade.update_users_github_name(user_id, github_name)

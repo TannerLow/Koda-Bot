@@ -54,17 +54,21 @@ class InMemoryDatabaseFacade(DatabaseFacade):
         LOGGER.debug(f"Retrieved user from db: {user.model_dump()}")
         return User.model_validate(user)
         
-    def give_xp(self, user_id: int, amount: int) -> None:
+    def give_xp(self, user_id: int, amount: int) -> bool:
         stats: Stats = self.database.get_record('stats', user_id)
+
+        leveled_up: bool = False
 
         stats.xp += amount
         if (stats.total_xp_needed - stats.xp) <= 0:
             stats.level += 1
+            leveled_up = True
             stats.xp = 0
             stats.total_xp_needed = LevelingSettings.xp_to_next_level(stats.level)
         
         self.database.set_record('stats', user_id, stats)
         LOGGER.debug(f"Updated user {user_id}'s stats: {stats.model_dump_json()}")
+        return leveled_up
 
     def create_checkin(self, checkin: Checkin) -> str:
         new_checkin_id: str = str(uuid4())

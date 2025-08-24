@@ -40,3 +40,7 @@ class DatabaseFacade(ABC):
     @abstractmethod
     def load_db(self) -> bool:
         pass
+
+    @abstractmethod
+    def give_xp(self, user_id: int, amount: int) -> bool:
+        pass

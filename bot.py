@@ -55,7 +55,7 @@ LOGGER = Logger(__file__, "debug")
 #test.create_test_data_in_db(database)
 
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=5)
 async def autosave_db_short_term():
     await parser.ephemeral_auto_save_db()
 

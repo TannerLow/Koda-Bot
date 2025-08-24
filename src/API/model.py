@@ -12,7 +12,7 @@ class Stats(BaseModel):
 
 class ProofType(Enum):
     Contribution = 'Contribution'
-    No_proof = 'No_proof',
+    No_proof = 'No_proof'
     Note = 'Note'
 
 class Checkin(BaseModel):
